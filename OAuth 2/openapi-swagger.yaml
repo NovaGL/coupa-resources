@@ -1,0 +1,497 @@
+swagger: '2.0'
+info:
+  title: Coupa OpenAPI
+  description: 'RESTful API that provides robust access to read, edit, or integrate your data with the Coupa platform'
+  version: '1.0'
+host: instance.coupahost.com
+basePath: /
+schemes:
+  - https
+consumes: []
+produces: []
+paths:
+  /api/contracts/{id}:
+    get:
+      tags:
+        - Contracts
+      responses:
+        default:
+          description: default
+          schema: {}
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: Accept
+          default: application/json
+          in: header
+          required: true
+          type: string
+          description: Accept
+        - name: offset
+          in: query
+          required: false
+          type: integer
+          description: Offset
+        - name: return_object
+          in: query
+          required: false
+          type: string
+          enum:
+            - shallow
+            - limited
+            - none
+        - name: dir
+          in: query
+          required: false
+          type: string
+          enum:
+            - asc
+            - desc
+      summary: Contracts - Get Contract by ID
+      description: Get Contract by ID
+      operationId: Get_contract
+  /api/contracts/{id}/contract_terms:
+    post:
+      tags:
+        - Contracts
+      responses:
+        default:
+          description: default
+          schema: {}
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: Accept
+          in: header
+          default: application/json
+          required: true
+          type: string
+          description: Accept
+        - name: body
+          in: body
+          required: false
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: name
+                title: name
+                default: Flexible Pricing
+                enum:
+                  - Flexible Pricing
+                  - Quantity of specific item - per order
+              contract-term-type:
+                type: string
+                description: contract-term-type
+                title: contract-term-type
+                default: PriceRangeContractTerm
+                enum:
+                  - PriceRangeContractTerm
+                  - PerOrderContractTerm
+              use-pct-discounts:
+                type: boolean
+                description: Use Percentage Discount
+                title: use-pct-discounts
+                default: false
+              tier-1-upper-bound:
+                type: integer
+                description: Tier 1 Upper Bounds
+                title: tier-1-upper-bound
+              tier-2-upper-bound:
+                type: integer
+                description: Tier 2 Upper Bounds
+                title: tier-2-upper-bound
+              tier-3-upper-bound:
+                type: integer
+                description: Tier 3 Upper Bounds
+                title: tier-3-upper-bound
+              tier-1-disc-pct:
+                type: integer
+                description: Tier 1 Upper Restriction
+                title: tier-1-disc-pct
+              tier-2-disc-pct:
+                type: integer
+                description: Tier 2 Upper Restriction
+                title: tier-2-disc-pct
+              tier-3-disc-pct:
+                type: integer
+                description: Tier 3 Upper Restriction
+                title: tier-3-disc-pct
+      summary: Contracts - Add a contract term
+      description: Add a contract term
+      operationId: Add_ContractTerm
+  /api/addresses:
+    get:
+      responses:
+        default:
+          description: default
+          schema:
+            $ref: '#/definitions/Addresses'
+      summary: Addresses - Get Addresses
+      description: Addresses - Get Addresses
+      operationId: Get_Addresses
+      parameters:
+        - name: Accept
+          in: header
+          required: true
+          type: string
+          default: application/json
+          x-ms-visibility: internal
+    post:
+      responses:
+        default:
+          description: default
+          schema:
+            $ref: '#/definitions/Addresses'
+      summary: Addresses - Create Address
+      description: Create Address
+      operationId: Address_Create
+      parameters:
+        - name: Accept
+          in: header
+          required: true
+          type: string
+          default: application/json
+          x-ms-visibility: internal
+        - name: body
+          in: body
+          required: false
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: name
+              location-code:
+                type: string
+                description: location-code
+              street1:
+                type: string
+                description: street1
+              street2:
+                type: string
+                description: street2
+              city:
+                type: string
+                description: city
+              state:
+                type: string
+                description: state
+              postal-code:
+                type: string
+                description: postal-code
+  /api/addresses/{id}:
+    put:
+      responses:
+        default:
+          description: default
+          schema:
+            $ref: '#/definitions/Address'
+      summary: Addresses – Update an Existing Address
+      description: Update an Existing Address
+      operationId: Address_Update
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: Accept
+          in: header
+          required: true
+          type: string
+          default: application/json
+          x-ms-visibility: internal
+        - name: body
+          in: body
+          required: false
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: name
+              location-code:
+                type: string
+                description: location-code
+              street1:
+                type: string
+                description: street1
+              street2:
+                type: string
+                description: street2
+              city:
+                type: string
+                description: city
+              state:
+                type: string
+                description: state
+              postal-code:
+                type: string
+                description: postal-code
+  /api/items/{id}:
+    patch:
+      responses:
+        default:
+          description: default
+          schema: {}
+      summary: Items - Update Item
+      description: Update Item
+      operationId: Item_Update
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+        - name: Accept
+          in: header
+          required: true
+          type: string
+          default: application/json
+          x-ms-visibility: internal
+        - name: body
+          in: body
+          required: false
+          schema:
+            type: object
+            properties:
+              active:
+                type: string
+                description: active
+  /api/purchase_orders/{id}/attachments/:
+    get:
+      tags:
+        - Attachments
+      responses:
+        default:
+          description: default
+          schema:
+            $ref: '#/definitions/AttachmentList'
+      summary: Attachments - Get Attachments from a Purchase Order
+      description: Get Attachments from a Purchase Order
+      operationId: Attachments_PO_GET
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: Accept
+          in: header
+          required: false
+          default: application/json
+          type: string
+    post:
+      tags:
+        - Attachments
+      responses:
+        default:
+          description: default
+          schema:
+            $ref: '#/definitions/Attachments'
+      summary: Attachments - Add Attachment (URL) to a Purchase Order
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: Accept
+          in: header
+          required: false
+          default: application/json
+          type: string
+        - name: body
+          in: body
+          required: false
+          schema:
+            type: object
+            properties:
+              intent:
+                type: string
+                description: intent
+                title: Viewable
+                default: Internal
+                enum:
+                  - Internal
+                  - Supplier
+              url:
+                type: string
+                description: URL
+      description: Add Attachment (URL) to a Purchase Order
+      operationId: Attachments_PO
+  /api/comments/{id}/attachments/:
+    post:
+      responses:
+        default:
+          description: default
+          schema:
+            $ref: '#/definitions/Attachments'
+      summary: Attachments - Add Attachment (URL) to a Comment
+      description: Add Attachment (URL) to a Comment
+      operationId: Attachments_Comment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: Accept
+          in: header
+          required: true
+          type: string
+          default: application/json
+          x-ms-visibility: internal
+        - name: body
+          in: body
+          required: false
+          schema:
+            type: object
+            properties:
+              intent:
+                type: string
+                description: intent
+                title: intent
+              url:
+                type: string
+                description: url
+definitions:
+  Attachments:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int32
+        description: id
+      created-at:
+        type: string
+        description: created-at
+      updated-at:
+        type: string
+        description: updated-at
+      type:
+        type: string
+        description: type
+      intent:
+        type: string
+        description: intent
+      url:
+        type: string
+        description: url
+  Address:
+    type: object
+    properties:
+      name:
+        type: string
+        description: name
+      location-code:
+        type: string
+        description: location-code
+        title: Location Code
+      street1:
+        type: string
+        description: street1
+      street2:
+        type: string
+        description: street2
+      city:
+        type: string
+        description: city
+      state:
+        type: string
+        description: state
+        title: State
+      postal-code:
+        type: string
+        description: postal-code
+        title: Postcode
+      id:
+        type: integer
+        format: int32
+        description: id
+        title: ID
+  Addresses:
+    type: array
+    description: basic
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+          description: name
+        location-code:
+          type: string
+          description: location-code
+          title: Location Code
+        street1:
+          type: string
+          description: street1
+        street2:
+          type: string
+          description: street2
+        city:
+          type: string
+          description: city
+        state:
+          type: string
+          description: state
+          title: State
+        postal-code:
+          type: string
+          description: postal-code
+          title: Postcode
+        id:
+          type: integer
+          format: int32
+          description: id
+          title: ID
+  AttachmentList:
+    type: array
+    description: basic
+    items:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          description: id
+        created-at:
+          type: string
+          description: created-at
+        updated-at:
+          type: string
+          description: updated-at
+        type:
+          type: string
+          description: type
+        intent:
+          type: string
+          description: intent
+        url:
+          type: string
+          description: url
+parameters: {}
+responses: {}
+securityDefinitions:
+  oauth2-auth:
+    type: oauth2
+    flow: accessCode
+    authorizationUrl: https://instance.coupahost.com/oauth2/authorizations/new
+    tokenUrl: https://instance.coupahost.com/oauth2/token
+    scopes:
+      core.common.read core.common.write core.contract.read core.contract.write core.inventory.receiving.read core.inventory.receiving.write core.invoice.delete core.invoice.read core.item.read core.item.write core.purchase_order.read core.purchase_order.write: >-
+        core.common.read core.common.write core.contract.read
+        core.contract.write core.inventory.receiving.read
+        core.inventory.receiving.write core.invoice.delete core.invoice.read
+        core.item.read core.item.write core.purchase_order.read
+        core.purchase_order.write
+security:
+  - oauth2-auth:
+      - >-
+        core.common.read core.common.write core.contract.read
+        core.contract.write core.inventory.receiving.read
+        core.inventory.receiving.write core.invoice.delete core.invoice.read
+        core.item.read core.item.write core.purchase_order.read
+        core.purchase_order.write
+tags: []
