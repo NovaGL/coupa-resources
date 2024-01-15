@@ -1,0 +1,970 @@
+{% comment %}
+Copyright (C) 2008  Coupa Software Incorporated http://www.coupa.com
+
+For a guide on how to customize your PO, please visit
+https://success.coupa.com/Support/Help_Articles/Purchase_Orders/Customize_Your_Purchase_Order_with_Liquid.
+
+NOTE: CSS has to be inlined for most email clients to work.
+{% endcomment %}
+
+{% assign padding-direction = 'padding-left' %}
+{% assign dir = 'ltr' %}
+{% assign text-align-language-direction = 'left' %}
+{% assign text-align-opposite-direction = 'right' %}
+{% if is_rtl_language %}
+  {% assign padding-direction = 'padding-right' %}
+  {% assign dir = 'rtl' %}
+  {% assign text-align-language-direction = 'right' %}
+  {% assign text-align-opposite-direction = 'left' %}
+{% endif %}
+{% comment %}
+# The first four lines create variables with default values.
+# 'padding-left' and 'dir' are initialized to 'ltr' (left-to-right),
+# while 'left' and 'right' are set to 'left' and 'right', respectively.
+
+# The 'if' statement checks if the current language is a right-to-left (RTL) language.
+# If it is, the values of the variables are changed. 'padding-left' is now 'padding-right'
+# to reflect the opposite direction of text flow, 'dir' is changed to 'rtl' to specify
+# right-to-left directionality, and 'left' and 'right' are swapped to reflect the opposite
+# positioning of elements.
+
+# The resulting values of these variables can then be used in the HTML markup.
+{% endcomment %}
+
+{% assign text_font_family_values = 'RobotoRegular, Roboto, helvetica, arial, sans-serif' %}
+
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <style>
+      @font-face {
+        font-family: 'RobotoRegular';
+        src: url('{{ src_font_urls.roboto_font_url }}') format('woff');
+        font-style: normal;
+        font-weight: 400;
+      }
+      @font-face {
+        font-family: 'OpenSans-Bold';
+        src: url('{{ src_font_urls.open_sans_bold_font_url }}') format('woff');
+        font-style: normal;
+        font-weight: 400;
+      }
+
+      table, tr, td, th, tbody, thead, tfoot {
+        page-break-inside: avoid !important;
+      }
+
+    </style>
+  </head>
+  <body style="width: 100%; padding: 0px; position: fixed; font-size: 10pt; font-family: {{text_font_family_values}};" dir="{{dir}}">
+    {% comment %} Email-specific styling is below. {% endcomment %}
+    {% if email.note %}
+      <pre style="font-family: {{text_font_family_values}}; font-size: 10pt; width: 95%;">{{ email.note }}</pre>
+    {% endif %}
+
+    {% if email.supplier_attachments_link %}
+      <p>
+        {{ 'order_headers.po_default_liquid_v2.attachments_info_html' | t_with_one_arg_html_safe: email.supplier_attachments_link }}
+      </p>
+    {% endif %}
+
+    {% if email.note or email.supplier_attachments_link %}
+      <hr/>
+    {% endif %}
+
+    {% comment %} PO DATA STARTS FROM HERE {% endcomment %}
+    <table style="border: 0px; padding: 0px; width: 100%; margin: 0px;">
+      <tr style="width: 100%;">
+        <td style="padding: 18px 30px 0px 30px; width: 100%;">
+          <table style="border: 0px; padding: 0px; width: 100%; border-collapse: separate;  margin: 0px;">
+            <tr>
+              <td style="overflow: auto; width: 66%; padding: 0; margin: 0;">
+                <div id="header" style="padding: 0px; margin: 0px;">
+                    <div id="logo_image" style="width: 40%; padding: 0px; margin: 0px;">
+                      {% if coa_logo_url %}
+                        <img src="{{ coa_logo_url }}" alt="" />
+                      {% else %}
+                        {% if company_logo_url %}
+                          <img src="{{ company_logo_url }}" alt="" />
+                        {% else %}
+                          <img src="{{ coupa_logo_url }}" alt="" />
+                        {% endif %}
+                      {% endif %}
+                    </div>
+                </div>               
+              </td>
+			  <td>			  
+			  {% if purchase_order.last_deleted_lines != empty or purchase_order.last_changed_lines != empty or purchase_order.last_added_lines != empty  or purchase_order.po_number_with_version contains '-'%}        
+				<h2 id="po_info" style="margin: 0px; font-family: OpenSans-Bold, helvetica, arial, sans-serif; font-size: 22px; color: #6e1be4; padding-left: 0px; padding-top: 10px; font-weight: 700;">
+					{{ 'order_headers.po_default_liquid_v2.current_lines' | t }} {{ purchase_order.po_number }} #V{{ purchase_order.version}} 
+					</h2>
+			  {% else %}
+				<h2 id="po_info" style="margin: 0px; font-family: OpenSans-Bold, helvetica, arial, sans-serif; font-size: 22px; color: #268ecd; padding-left: 0px; padding-top: 10px; font-weight: 700;">{{ 'order_headers.po_default_liquid_v2.purchase_order' | t }} {{ purchase_order.po_number_with_version }}</h2>
+			  {% endif %}
+			  {% if purchase_order.custom_urgent == 'Yes' %}<h2 id="po_info" style="margin: 0px; font-family: OpenSans-Bold, helvetica, arial, sans-serif; font-size: 24px; color: #d90000; padding-left: 0px; padding-top: 10px; font-weight: 700;">URGENT</h2>{% endif %}         
+			  <div style="font-weight: bold; padding-bottom: 8px;" >{{ 'order_headers.po_default_liquid_v2.general_info' | t }}</div>
+				<div style="width: 90%;">{{ 'order_headers.po_default_liquid_v2.date' | t }}: {{ purchase_order.created_date | l }}</div>
+					{% if supplier.account_number %}
+						<div style="width: 90%;">{{ 'order_headers.po_default_liquid_v2.account' | t }}: #{{ supplier.account_number }}</div>
+					{% endif %}
+				<div style="width: 90%;">Contact: {{ purchase_order.requester.fullname }}</div>
+					  	<a href="mailto:{{ purchase_order.requester.email }}">{{ purchase_order.requester.email }}</a>
+				</div>				
+			  </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+	  <tr style="width: 100%; ">
+	    <td style="padding-left:37px !important; font-family: {{text_font_family_values}}; text-align: {{text-align-language-direction}};">
+          <div style="font-weight: bold; font-size: 18px; padding-bottom: 8px;">{{ supplier.name }}</div>
+          {% if supplier_site %}
+            <div style="font-weight: bold; font-size: 18px; padding-bottom: 8px;">{{ supplier_site.name }}</div>
+          {% endif %}
+          {% if supplier_site.address %}
+              <div>{{ supplier_site.address.street1 }}</div>
+              {% if supplier_site.address.street2 %}<div>{{ supplier_site.address.street2 }}</div>{% endif %}
+              <div>{% if supplier_site.address.city %} {{ supplier_site.address.city }}, {% endif %} {{ supplier_site.address.state }} {{ supplier_site.address.postal_code }}</div>
+              {% if addresses_has_different_countries %}<div>{{ supplier_site.address.country.name }}</div>{% endif %}
+            {% if supplier_site.contact %}
+              {% if supplier_site.contact.fullname %}<div>{{ 'order_headers.po_default_liquid_v2.attention' | t }}: {{ supplier_site.contact.fullname }}</div>{% endif %}
+              {% if supplier_site.contact.email %}<div>{{ supplier_site.contact.email }}</div>{% endif %}
+              {% if supplier_site.contact.phone_work %}<div>Phone: {{ supplier_site.contact.phone_work }}</div>{% endif %}
+              {% if supplier_site.contact.phone_fax %}<div>Fax: {{ supplier_site.contact.phone_fax }}</div>{% endif %}
+            {% endif %}
+          {% else %}
+            {% if supplier.primary_address %}
+              <div>{{ supplier.primary_address.street1 }}</div>
+              {% if supplier.primary_address.street2 %}<div>{{ supplier.primary_address.street2 }}</div>{% endif %}
+              <div>{% if supplier.primary_address.city %} {{ supplier.primary_address.city }}, {% endif %} {{ supplier.primary_address.state }} {{ supplier.primary_address.postal_code }}</div>
+              {% if addresses_has_different_countries %}<div>{{ supplier.primary_address.country.name }}</div>{% endif %}
+            {% endif %}            
+          {% endif %}
+         </td>
+	  </tr>
+      <tr style="width: 100%;">
+        <td style="padding: 18px 30px 0px 30px; width: 100%;">
+          <table  id="addresses" style="border-radius: 10px; border: 0px; padding: 0px; width: 100%; border-collapse: separate;">
+             <tr style="font-size: 14px; vertical-align: top;">		
+			   <td style="border-radius: 10px; border: 1px solid #d5dee7; border-collapse: separate; font-family: {{text_font_family_values}}; font-size: 14px; padding: 5px 0px 24px 20px; width: 33%; text-align: {{text-align-language-direction}};">				
+				<div style="font-weight: bold; padding-bottom: 8px;" >{{ 'order_headers.po_default_liquid_v2.ship_to' | t }}</div>
+				{% if company_name %}
+					<div style="font-weight: bold; font-size: 18px; padding-bottom: 8px;" >{{ company_name }}</div>
+				{% endif %}
+					<div>{{ ship_to_address.street1 }}</div>
+				{% if ship_to_address.street2 %}
+					<div>{{ ship_to_address.street2 }}</div>
+				{% endif %}
+					<div>
+				{% if ship_to_address.city %}{{ ship_to_address.city }}, {% endif %}
+					{{ ship_to_address.state }} {{ ship_to_address.postal_code }}
+					</div>
+				{% if addresses_has_different_countries %}
+					<div>{{ ship_to_address.country.name }}</div>
+				{% endif %}
+				{% if ship_to_address.location_code %}
+					<div>{{ ship_to_address.location_code }}</div>
+				{% endif %}
+					<div>
+					{{ 'order_headers.po_default_liquid_v2.attention' | t }}: 
+				{% if purchase_order.ship_to_attention %}
+						{{ purchase_order.ship_to_attention }}
+				{% elsif ship_to_address.attention %}
+						{{ ship_to_address.attention }}
+				{% endif %}
+				</div>
+              </td>               
+			   <td style="font-family: {{text_font_family_values}}; font-size: 14px; padding-right: 40px; padding-top: 0px; padding-bottom: 24px; width: 2%; text-align: {{text-align-language-direction}};"> &nbsp; </td>  
+			   <td style="border-radius: 10px; border: 1px solid #d5dee7; border-collapse: separate; font-family: {{text_font_family_values}}; font-size: 14px; padding: 5px 0px 24px 20px; width: 33%; text-align: {{text-align-language-direction}};">				
+                <div style="font-weight: bold; padding-bottom: 8px;"> {{ 'order_headers.po_default_liquid_v2.bill_to' | t }}</div>
+				{% if purchase_order.pcard %}
+                  <div style="font-weight: bold;  padding-bottom: 8px;" >{{ 'order_headers.po_default_liquid_v2.card.p_card' | t }}</div>
+                  <div><label>{{ 'order_headers.po_default_liquid_v2.card.name' | t }}:</label> {{ purchase_order.pcard.name }}</div>
+                  {% if unmask_pcard_number %}
+                    {% if tokenize_pcard_with_iframe %}
+                      <div class="wrapper_vertical" style="padding-left: 54px;"><label>{{ 'order_headers.po_default_liquid_v2.card.number' | t }}:</label><div class="replace-with-iframe"/></div>
+                    {% else %}
+                      <div><label>{{ 'order_headers.po_default_liquid_v2.card.number' | t }}:</label> {{ purchase_order.pcard.formatted_unmasked_number }}</div>
+                    {% endif %}
+                  {% else %}
+                    <div><label>{{ 'order_headers.po_default_liquid_v2.card.number' | t }}:</label> {{ purchase_order.pcard.number }}</div>
+                  {% endif %}
+                  <div><label>{{ 'order_headers.po_default_liquid_v2.card.exp' | t }}:</label> {{ purchase_order.pcard.expiry }}</div>
+                {% else %}
+                    {% if company_name %}
+						<div style="font-weight: bold; font-size: 18px; padding-bottom: 8px;" >{{ company_name }}</div>
+					{% endif %}
+						<div>{{ bill_to_address.street1 }}</div>
+					{% if bill_to_address.street2 %}
+						<div>{{ bill_to_address.street2 }}</div>
+					{% endif %}
+					<div>
+					{% if bill_to_address.city %}{{ bill_to_address.city }}, {% endif %}
+						{{ bill_to_address.state }} {{ bill_to_address.postal_code }}
+					</div>
+					{% if bill_to_address.location_code %}
+						<div>{{ bill_to_address.location_code }}</div>
+					{% endif %}
+					{% if addresses_has_different_countries %}
+						<div>{{ bill_to_address.country.name }}</div>
+					{% endif %}
+						<div>{{ bill_to_address.primary_contact }}</div>
+					{% if purchase_order.bill_to_name %}
+						<div>{{ 'order_headers.po_default_liquid_v2.attention' | t }}: {{ purchase_order.bill_to_name }}</div>
+					{% endif %}
+                {% endif %}
+              </td> 
+				<td style="font-family: {{text_font_family_values}}; font-size: 14px; padding-right: 40px; padding-top: 0px; padding-bottom: 24px; width: 1%; text-align: {{text-align-language-direction}};"> &nbsp; </td>              
+			   <td style="border:0; font-family: {{text_font_family_values}}; font-size: 14px; padding: 5px 0px 24px 20px; width: 27%; text-align: {{text-align-language-direction}};">                								
+			   &nbsp;
+              </td>              
+			  </td>
+            </tr>            
+            {% unless purchase_order.milestones == empty or purchase_order.milestones == null %}
+              <tr style="font-weight: bold; font-size: 18px;">
+                <td colspan=2 style="padding-right: 40px; padding-top: 0px; padding-bottom: 24px; width: 66%;">
+                    {% assign recurr_sr_no = 1 %}
+                    {% assign prev_recurr_id = 0 %}
+                    <table style="width: 100%;">
+                      {% unless purchase_order.milestones == empty or purchase_order.milestones == null %}
+                        <tr>
+                          <td style="font-family: {{text_font_family_values}}; font-weight: 700; font-size: 18px; text-align: {{text-align-language-direction}};">
+                            {{ 'order_headers.po_default_liquid_v2.payment_agreements.title' | t }}&nbsp;
+                          </td>
+                        </tr>
+                      {% endunless %}
+                      {% for milestone in purchase_order.milestones %}
+                        {% if milestone.type == "prepayment" %}
+                          <tr style="font-size: 13px;"  >
+                            <td  style="font-family: {{text_font_family_values}}; font-size: 13px;">
+                              <div style="font-weight: 700;  width: 90%;">{{ "order_headers.po_default_liquid_v2.payment_agreements.prepayment" | t }} - {{ milestone.amount }}</div>
+                              {% if milestone.payment_term %}
+                                <div style="font-weight: 400;  width: 90%;">{{ 'order_headers.po_default_liquid_v2.payment_agreements.terms' | t }}: {{ milestone.payment_term["code"] }}</div>
+                              {% endif %}
+                              {% if milestone.due_date %}
+                                <div style="font-weight: 400; width: 90%;">{{ 'order_headers.po_default_liquid_v2.payment_agreements.due_date' | t }}: {{ milestone.due_date | l }}</div>
+                              {% endif %}
+                              {% if milestone.description %}
+                                <div style="font-style: italic; font-size: 10px; font-weight: 400; width: 90%;">{{ 'order_headers.po_default_liquid_v2.payment_agreements.note' | t }}: {{ milestone.description }}</div>
+                              {% endif %}
+                            </td>
+                          </tr>
+                        {% elsif milestone.type == "retainage" %}
+                          <tr>
+                            <td style="font-family: {{text_font_family_values}}; font-size: 13px;">
+                              <div  style="font-weight: 700; width: 90%;">{{ 'order_headers.po_default_liquid_v2.payment_agreements.retainer' | t }} - {{ milestone.amount }}</div>
+                              {% if milestone.payment_term %}
+                                <div style="font-weight: 400;  width: 90%;">{{ 'order_headers.po_default_liquid_v2.payment_agreements.terms' | t }}: {{ milestone.payment_term["code"] }}</div>
+                              {% endif %}
+                              {% if milestone.due_date %}
+                                <div style="font-weight: 400;  width: 90%;">{{ 'order_headers.po_default_liquid_v2.payment_agreements.due_date' | t }}: {{ milestone.due_date | l }}</div>
+                              {% endif %}
+                              {% if milestone.description %}
+                                <div style="font-style: italic; font-size: 10px; font-weight: 400;  width: 90%;">{{ 'order_headers.po_default_liquid_v2.payment_agreements.note' | t }}: {{ milestone.description }}</div>
+                              {% endif %}
+                            </td>
+                          </tr>
+                        {% elsif milestone.type == "recurring" %}
+                            <tr>
+                              <td style="font-family: {{text_font_family_values}}; font-size: 13px;">
+                                {% if prev_recurr_id == milestone.recurring_rule_id %}
+                                  <div style="font-weight: 400;  width: 90%;">{{ recurr_sr_no }}. {{ milestone.due_date | l }} - {{ milestone.amount }}</div>
+                                {% else %}
+                                  {% assign recurr_sr_no =  1 %}
+                                  <div style="font-weight: 700; width: 90%;">{{ 'order_headers.po_default_liquid_v2.payment_agreements.recurring' | t }}: Repeats {{milestone.recurring_rule.interval}}, starts on {{milestone.recurring_rule.start_date | l }} to {{milestone.recurring_rule.end_date | l }}</div>
+
+                                  {% if milestone.payment_term %}
+                                    <div style="font-weight: 400;  width: 90%;">{{ 'order_headers.po_default_liquid_v2.payment_agreements.terms' | t }}: {{ milestone.payment_term["code"] }}</div>
+                                  {% endif %}
+                                  {% if milestone.description %}
+                                    <div style="font-style: italic; font-size: 10px; font-weight: 400;  width: 90%;">{{ 'order_headers.po_default_liquid_v2.payment_agreements.note' | t }}: {{ milestone.description }}</div>
+                                  {% endif %}
+                                  <div style="font-weight: 400;  width: 90%;">{{ recurr_sr_no }}. {{ milestone.due_date | l }} - {{ milestone.amount }}</div>
+                              </td>
+                            </tr>
+                            {% assign sr_no = sr_no | plus: 1 %}
+                          {% endif %}
+                          {% assign prev_recurr_id = milestone.recurring_rule_id %}
+                          {% assign recurr_sr_no = recurr_sr_no | plus: 1 %}
+                        {% endif %}
+                      {% endfor %}
+                    </table>
+                </td>
+                <td style="width: 34%;"></td>
+              </tr>
+            {% endunless %}
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 18px 15px 0px 15px;">
+
+            {% assign colspan_no = 5 %}
+            {% assign is_changes_present = false %}
+            
+            {% if purchase_order.last_deleted_lines != empty or purchase_order.last_changed_lines != empty or purchase_order.last_added_lines != empty  %}
+              {% assign is_changes_present = true %}
+                <table id="order_lines" style="border-radius: 10px; border: 1px solid #d5dee7; mso-border-alt: 1px solid #d5dee7; margin-right: 50px; margin-top: 20px; margin-right: 50px; width: 95%; border-collapse: separate;">
+                  <tr>
+                    <td style="width: auto; padding: 18px;">
+                      <table style="width: 100%;">
+                        <td style="font-family: {{text_font_family_values}}; text-align: {{text-align-language-direction}}; padding-top: 4px; padding-bottom: 14px; font-weight: bold; font-size: 22px;">{{ 'order_headers.po_default_liquid_v2.current_lines' | t }} #{{  purchase_order.version }}&nbsp;
+                        </td>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="width: auto; padding: 18px;">
+                      <table style="width: 100%;">
+            {% else %}
+                <table id="order_lines" style="border-radius: 10px; border: 0px; width: 95%; border-collapse: separate; margin: 20px;">
+            {% endif %}
+              <thead style="font-size: 13px;">
+                <tr>
+                {% unless purchase_order.price_is_hidden_from_supplier? %}
+                  {% assign colspan_no = 8 %}
+                  <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-language-direction}}; font-weight: 700; width: 5%; word-wrap: break-word;">{{ 'order_headers.po_default_liquid_v2.line' | t }}</th>
+				  <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-language-direction}}; font-weight: 700; width: 20%; word-wrap: break-word;">Part Number</th>
+                  <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-language-direction}}; font-weight: 700; width: 35%; word-wrap: break-word;">{{ 'order_headers.po_default_liquid_v2.description' | t }}</th>
+                  <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; font-weight: 700; width: 10%; padding: 0 18px 0 0; margin: 0;">{{ 'order_headers.po_default_liquid_v2.quantity' | t }}</th>
+                  <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: center; font-weight: 700; width: 5%; word-wrap: break-word;">{{ 'order_headers.po_default_liquid_v2.unit' |t }}</th>
+                  <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; font-weight: 700; width: 10%; word-wrap: break-word;">{{ 'order_headers.po_default_liquid_v2.price' | t }} </th>
+                  {% if purchase_order.order_lines_has_bulk_price? %}
+                    {% assign colspan_no = 8 %}
+                    <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; font-weight: 700; word-wrap: break-word;">{{ 'order_headers.po_default_liquid_v2.bulk_price' | t }} </th>
+                  {% endif %}
+                  <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; font-weight: 700; width: 15%; word-wrap: break-word;">{{ 'order_headers.po_default_liquid_v2.total' | t }} </th>
+                  <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; font-weight: 700; width: 1%; word-wrap: break-word;"></th>
+                {% else %}
+                  <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-language-direction}}; font-weight: 700; width: 15%; word-wrap: break-word;">{{ 'order_headers.po_default_liquid_v2.line' | t }}</th>
+				  <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-language-direction}}; font-weight: 700; width: 20%; word-wrap: break-word;">Part Number</th>
+                  <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-language-direction}}; font-weight: 700; width: 51%; word-wrap: break-word;">{{ 'order_headers.po_default_liquid_v2.description' | t }}</th>
+                  <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; font-weight: 700; width: 10%; padding: 0 18px 0 0; margin: 0;">{{ 'order_headers.po_default_liquid_v2.quantity' | t }}</th>
+                  <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: center; font-weight: 700; width: 9%; word-wrap: break-word;">{{ 'order_headers.po_default_liquid_v2.unit' | t }}</th>
+                  <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; font-weight: 700; width: 1%; word-wrap: break-word;"></th>
+                {% endunless %}
+                </tr>
+                <tr><th colspan="{{ colspan_no | minus: 1 }}" style="padding: 0; margin: 0;"><hr style="border-top: 2px solid #C6D1DD; border-right: 0; border-bottom: 0; border-left: 0; padding: 0; margin: 0;"/></th><th></th></tr>
+              </thead>
+              
+              {% for line in lines %}
+                <tr style=" font-size: 13px;">
+                  <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-language-direction}}; vertical-align: top; width: 10%; word-wrap: break-word; padding: 8px 0 8px 0; margin: 0;">{{ line.line_num }}</td>
+                  <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-language-direction}};  font-weight: 700; vertical-align: top; width: 10%; word-wrap: break-word; padding: 8px 0 8px 0; margin: 0;">{{ line.supplier_part_number }}</td>
+				  <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-language-direction}}; vertical-align: top; word-wrap: break-word; padding: 8px 0 8px 0; margin: 0;">
+                    {{ line.description }}
+                  </td>
+                  <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; vertical-align: top; word-wrap: break-word;  padding: 8px 18px 0 0; margin: 0;">{{ line.quantity | n }}</td>
+                  <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: center; vertical-align: top; word-wrap: break-word; padding: 8px 0 8px 0; margin: 0;">{{ line.uom.translated_name }}</td>
+                  {% unless purchase_order.price_is_hidden_from_supplier? %}
+                    <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; vertical-align: top; word-wrap: break-word; padding: 8px 0 8px 0; margin: 0;">{{ line.price }}</td>
+                    {% if purchase_order.order_lines_has_bulk_price? %}
+                      <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; vertical-align: top;width: 27%; word-wrap: break-word; padding: 8px 0 8px 0; margin: 0;"><div style="margin-bottom:5px;">{{ line.bulk_price_with_currency }}</div>
+                        {% if line.uom != line.bulk_price_uom %}
+                          <div style="margin-bottom:5px; font-size:13px; color:grey;">{{ line.display_conversion_ratio }}</div>
+                        {% endif %}
+                      </td>
+                    {% endif %}
+                    <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; vertical-align: top; word-wrap: break-word; padding: 8px 0 8px 0; margin: 0;">{{ line.total }}</td>
+                  {% endunless %}
+                  <td></td>
+                </tr>
+                {% unless line.rate_card  == empty or line.rate_card == null %}
+                  <tr>
+                    <td></td>
+                    <td colspan="{{ colspan_no | minus: 2}}" style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-language-direction}}; vertical-align: top; border: 1px solid #CCCCCC;">{{ line.rate_card }}</td>
+                    <td></td>
+                  </tr>
+                {% endunless %}
+                {% unless line.job_title_po  == empty or line.job_title_po == null %}
+                  <tr>
+                    <td></td>
+                    <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-language-direction}}; vertical-align: top; border: 1px solid #CCCCCC;">{{ line.job_title_po }}</td>
+                  </tr>
+                {% endunless %}
+
+				{% comment %}
+				### REMOVE LINE BREAK
+				
+                {% if line.print_line_separator %}
+                  <tr style="width: 100%;">
+                    <td></td>
+                    <td colspan="{{ colspan_no | minus: 2}}" style="padding: 0; margin: 0;">
+                      <hr style="border-top: 1.5px solid #C6D1DD; border-right: 0; border-bottom: 0; border-left: 0; padding: 0; margin: 0;"/>
+                    </td>
+                    <td></td>
+                  </tr>
+                {% endif %}
+				{% endcomment %}
+				
+                <tr>
+                  <td></td>
+                  <td colspan="{{ colspan_no | minus: 2}}" style="font-family: {{text_font_family_values}}; font-size: 12px; padding: 8px 0 8px 0px; margin: 0;">
+                    {% if line.need_by_date %}
+                      <div style="overflow: auto; width: 95%; font-size: 12px;">
+                        <div style="float: left;">{{ 'order_headers.po_default_liquid_v2.need_by_date' | t }}: {{line.need_by_date  | l }}</div>
+                      </div>
+                    {% endif %}                    
+                    {% if line.asset_tags.size > 0 %}
+                      <div style="overflow: auto; width: 95%; font-size: 12px;">
+                        <div style="float: left;">{{ 'order_headers.po_default_liquid_v2.asset_tag' | t }}: {{ line.asset_tags | join: ", " }}</div>
+                      </div>
+                    {% endif %}
+					{% comment %}
+					########### REMOVE NON-REQUIRED LINES
+                    {% unless line.manufacturer_name == empty or line.manufacturer_name == null %}
+                      <div style="overflow: auto; width: 95%; font-size: 12px;">
+                        <div style="float: left;">{{ 'order_headers.po_default_liquid_v2.mfg_name' | t }}: {{line.manufacturer_name }}</div>
+                      </div>
+                    {% endunless %}
+                    {% unless line.manufacturer_part_number  == empty or line.manufacturer_part_number == null %}
+                      <div style="overflow: auto; width: 95%; font-size: 12px;">
+                        <div style="float: left;">
+                          {{ 'order_headers.po_default_liquid_v2.mfg_part_no' | t }}: {{line.manufacturer_part_number }}
+                        </div>
+                      </div>
+                    {% endunless %}
+					{% endcomment %}
+                    {% unless line.line_manager  == empty or line.line_manager == null %}
+                      <div style="overflow: auto; width: 95%; font-size: 12px;">
+                        <div style="float: left;">
+                          {{ 'order_headers.po_default_liquid_v2.line_manager' | t }}: {{line.line_manager }}
+                        </div>
+                      </div>
+                    {% endunless %}
+                    {% unless line.work_confirmer  == empty or line.work_confirmer == null %}
+                      <div style="overflow: auto; width: 95%; font-size: 12px;">
+                        <div style="float: left;">
+                          {{ 'order_headers.po_default_liquid_v2.work_confirmer' | t }}: {{line.work_confirmer }}
+                        </div>
+                      </div>
+                    {% endunless %}
+                    {% unless line.start_date  == empty or line.start_date == null %}
+                      <div style="overflow: auto; width: 95%; font-size: 12px;">
+                        <div style="float: left;">
+                          {{ 'order_headers.po_default_liquid_v2.service_start_date' | t }}: {{line.start_date | l }}
+                        </div>
+                      </div>
+                    {% endunless %}
+                    {% unless line.due_date  == empty or line.due_date == null %}
+                      <div style="overflow: auto; width: 95%; font-size: 12px;">
+                        <div style="float: left;">
+                          {{ 'order_headers.po_default_liquid_v2.service_due_date' | t }}: {{line.due_date | l }}
+                        </div>
+                      </div>
+                    {% endunless %}
+                    {% unless line.end_date  == empty or line.end_date == null %}
+                      <div style="overflow: auto; width: 95%; font-size: 12px;">
+                        <div style="float: left;">
+                          {{ 'order_headers.po_default_liquid_v2.service_end_date' | t }}: {{line.end_date | l }}
+                        </div>
+                      </div>
+                    {% endunless %}
+                    {% if line.form_response %}
+                      {% for fr in line.form_response %}
+                        <div style="overflow: auto; width: 95%; font-size: 12px;">
+                          <div style="float: left;">
+                            {{ fr.question }}: {{ fr.answer }}
+                          </div>
+                        </div>
+                      {% endfor %}
+                    {% endif %}
+                    {% if line.rfq_form_response %}
+                      {% for fr in line.rfq_form_response %}
+                         <div style="overflow: auto; width: 95%; font-size: 12px;">
+                          <div style="float: left;">
+                            {{ fr.question }}: {{ fr.answer }}
+                          </div>
+                        </div>
+                      {% endfor %}
+                    {% endif %}
+                    {% for attachment in line.attachments %}
+                      <div style="overflow: auto; width: 95%; font-size: 12px;">
+                        <div style="float: left;">
+                          {% case attachment.type %}
+                          {% when 'text' %}Note: {{ attachment.text }}
+                          {% when 'url' %}<a style="font-size: 12px;" href="{{ attachment.url }}">{{ attachment.url }}</a>
+                          {% endcase %}
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </td>
+                  <td></td>
+                </tr>
+
+                {% assign sr_no = 1 %}
+                {% assign recurr_sr_no = 1 %}
+                {% assign prev_recurr_id = 0 %}
+                {% unless line.milestones == empty or line.milestones == null %}
+                  <tr>
+                    <td></td>
+                    <td colspan="{{ colspan_no | minus: 2}}" style="padding: 0; margin: 0;">
+                      <hr style="border-top: 1.5px solid #C6D1DD; border-right: 0; border-bottom: 0; border-left: 0; padding: 0; margin: 0;"/>
+                    </td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td colspan="{{ colspan_no | minus: 2}}" style="font-family: {{text_font_family_values}}; font-weight: 700; font-size: 13px; padding-bottom: 0px;  padding-top: 15px; padding-left: 40px;">
+                        <div style="overflow: auto;font-size: 13px;">
+                          <div style="float: left; font-weight: 700;">
+                            {{ 'order_headers.po_default_liquid_v2.payment_agreements.title' | t }}&nbsp;
+                          </div>
+                        </div>
+                      </td>
+                      <td></td>
+                    </tr>
+                    {% for milestone in line.milestones %}
+                      {% if milestone.type == "prepayment" %}
+                        <tr style="padding: 0; margin: 0;">
+                          <td></td>
+                          <td colspan="{{ colspan_no | minus: 2}}" style="font-family: {{text_font_family_values}}; font-size: 13px; padding-bottom: 0px;  padding-top: 15px; padding-left: 40px;">
+                            <div style="overflow: auto;font-size: 13px;">
+                              <div style="float: left; font-weight: 700; width: 70%;">
+                                {{ sr_no }}.&nbsp;{{ "order_headers.po_default_liquid_v2.payment_agreements.prepayment" | t }} - {{ milestone.amount }}
+                              </div>
+                            </div>
+                            {% if milestone.payment_term %}
+                              <div style="overflow: auto;font-size: 13px;">
+                                <div style="float: left; font-weight: 400; text-indent: 1em; width: 70%;">
+                                  {{ 'order_headers.po_default_liquid_v2.payment_agreements.terms' | t }}: {{ milestone.payment_term["code"] }}
+                                </div>
+                              </div>
+                            {% endif %}
+                            {% if milestone.due_date %}
+                              <div style="overflow: auto;font-size: 13px;">
+                                <div style="float: left; font-weight: 400; text-indent: 1em; width: 70%;">
+                                  {{ 'order_headers.po_default_liquid_v2.payment_agreements.due_date' | t }}: {{ milestone.due_date | l }}
+                                </div>
+                              </div>
+                            {% endif %}
+                            {% if milestone.description %}
+                              <div style="overflow: auto; font-size: 10px;">
+                                <div style="float: left; font-weight: 400; font-style: italic;  text-indent: 1em; width: 70%;">
+                                  {{ 'order_headers.po_default_liquid_v2.payment_agreements.note' | t }}: {{ milestone.description }}
+                                </div>
+                              </div>
+                            {% endif %}
+                          </td>
+                          <td></td>
+                        </tr>
+                        {% assign sr_no = sr_no | plus: 1 %}
+                      {% elsif milestone.type == "retainage" %}
+                        <tr style="padding: 0; margin: 0;">
+                          <td></td>
+                          <td colspan="{{ colspan_no | minus: 2}}" style="font-family: {{text_font_family_values}}; font-size: 13px; padding-bottom: 0px;  padding-top: 15px; padding-left: 40px;">
+                              <div style="overflow: auto; font-size: 13px;">
+                                <div style="float: left; font-weight: 700; width: 70%;">
+                                {{ sr_no }}.&nbsp;{{ "order_headers.po_default_liquid_v2.payment_agreements.retainer" | t }} - {{ milestone.amount }}
+                              </div>
+                            </div>
+                            {% if milestone.payment_term %}
+                              <div style="overflow: auto; font-size: 13px;">
+                                <div style="float: left; font-weight: 400; text-indent: 1em; width: 70%;">
+                                  {{ 'order_headers.po_default_liquid_v2.payment_agreements.terms' | t }}: {{ milestone.payment_term["code"] }}
+                                </div>
+                              </div>
+                            {% endif %}
+                            {% if milestone.due_date %}
+                              <div style="overflow: auto; font-size: 13px;">
+                                <div style="float: left; font-weight: 400; text-indent: 1em; width: 70%;">
+                                  {{ 'order_headers.po_default_liquid_v2.payment_agreements.due_date' | t }}: {{ milestone.due_date | l }}
+                                </div>
+                              </div>
+                            {% endif %}
+                            {% if milestone.description %}
+                              <div style="overflow: auto; font-size: 10px;">
+                                <div style="float: left; font-weight: 400; font-style: italic;  text-indent: 1em; width: 70%;">
+                                  {{ 'order_headers.po_default_liquid_v2.payment_agreements.note' | t }}: {{ milestone.description }}
+                                </div>
+                              </div>
+                            {% endif %}
+                          </td>
+                          <td></td>
+                        </tr>
+                        {% assign sr_no = sr_no | plus: 1 %}
+                      {% elsif milestone.type == "recurring" %}
+                        {% if prev_recurr_id == milestone.recurring_rule_id %}
+                          <tr style="padding: 0; margin: 0;">
+                            <td></td>
+                            <td colspan="{{ colspan_no | minus: 2}}" style="font-family: {{text_font_family_values}}; font-size: 13px; padding-bottom: 0px;  padding-top: 0px; padding-left: 40px; margin: 0;">
+                                <div style="overflow: auto; font-size: 13px;">
+                                  <div style="float: left; font-weight: 400; width: 70%;">
+                                    {{ recurr_sr_no }}. {{ milestone.due_date | l }} - {{ milestone.amount }}
+                                  </div>
+                                </div>
+                            </td>
+                            <td></td>
+                          </tr>
+                        {% else %}
+                           <tr>
+                            <td></td>
+                            <td colspan="{{ colspan_no | minus: 2}}" style="font-family: {{text_font_family_values}}; font-size: 13px; padding-bottom: 0px;  padding-top: 15px; padding-left: 40px;">
+                                {% assign recurr_sr_no =  1 %}
+                                <div style="overflow: auto; font-size: 13px;">
+                                  <div style="float: left; font-weight: 700; width: 70%;">
+                                  {{ sr_no }}.&nbsp;{{ 'order_headers.po_default_liquid_v2.payment_agreements.recurring' | t }}: Repeats {{milestone.recurring_rule.interval}}, starts on {{milestone.recurring_rule.start_date | l }} to {{milestone.recurring_rule.end_date | l }}
+                                  </div>
+                                </div>
+                                {% if milestone.payment_term %}
+                                  <div style="overflow: auto;font-size: 13px;">
+                                    <div style="float: left; font-weight: 400; text-indent: 1em; width: 70%;">
+                                      {{ 'order_headers.po_default_liquid_v2.payment_agreements.terms' | t }}: {{ milestone.payment_term["code"] }}
+                                    </div>
+                                  </div>
+                                {% endif %}
+                                {% if milestone.description %}
+                                  <div style="overflow: auto;font-size: 10px;">
+                                    <div style="float: left; font-weight: 400; font-style: italic;  text-indent: 1em; width: 70%;">
+                                      {{ 'order_headers.po_default_liquid_v2.payment_agreements.note' | t }}: {{ milestone.description }}
+                                    </div>
+                                  </div>
+                                {% endif %}
+                                <div style="overflow: auto; font-size: 13px;">
+                                  <div style="float: left; font-weight: 400; width: 70%; padding-top: 15px;">
+                                    {{ recurr_sr_no }}. {{ milestone.due_date | l }} - {{ milestone.amount }}
+                                  </div>
+                                </div>
+                              </td>
+                              <td></td>
+                            </tr>
+                          {{ endif }}
+                          {% assign sr_no = sr_no | plus: 1 %}
+                        {% endif %}
+                        {% assign prev_recurr_id = milestone.recurring_rule_id %}
+                        {% assign recurr_sr_no = recurr_sr_no | plus: 1 %}
+                      {% endif %}
+                    {% endfor %}
+                {% endunless %}
+                <tr>
+                  <td colspan="{{ colspan_no | minus: 1 }}" style="padding: 0; margin: 0; width: 100%;">
+                    <hr style="border-top: 1.5px solid #C6D1DD; border-right: 0; border-bottom: 0; border-left: 0; padding: 0; margin: 0;"/>
+                  </td>
+                  <td></td>
+                </tr>
+              {% endfor %}
+              <tr>
+                <td></td>
+                <td id="purchase_order_total" style="font-family: {{text_font_family_values}}; text-align: {{text-align-opposite-direction}}; padding: 0; margin: 0; width: 70%;" colspan= "{{ colspan_no | minus: 2}}">
+                  {% unless purchase_order.price_is_hidden_from_supplier? %}
+                      {% if purchase_order.total_changed? %}
+                        <div style="float: right; padding-top: 12px;">
+                          <div style="border-bottom: 1.5px solid #C6D1DD; width: max-content;">
+                            <div style="font-size: 16px; color: #6e1be4;">{{ 'order_headers.po_default_liquid_v2.updated_total' | t }}: {{ purchase_order.total }} {{ purchase_order.currency.code }}</div>
+                            <div style="font-size: 14px; color: #1b1f28;  margin-top: 6px;">
+                              {{ 'order_headers.po_default_liquid_v2.previous_total' | t }}: {{ purchase_order.total_old }} {{ purchase_order.currency.code }}
+                            </div>
+                          </div>                          
+                        </div>
+                      {% else%}
+                        <div style="overflow: auto; font-size: 18px; color: #1b1f28; width: 70%; float: right;">
+                          <span style="float: right; font-weight: 600; width: 70%; font-size: 18px;">
+                            {{ 'order_headers.po_default_liquid_v2.total' | t }}: {{ purchase_order.total }} {{ purchase_order.currency.code }}
+                          </span>
+                        </div>
+                      {% endif %}
+                  {% endunless %}
+                </td>
+                <td></td>
+              </tr>
+            </table>
+            {% if is_changes_present  %}
+              </td></tr></table>
+            {% endif %}
+        </td>
+      </tr>
+
+      {% assign colspan_no = 5 %}
+      {% if purchase_order.last_changed_lines != empty %}
+        <tr>
+          <td style="font-family: {{text_font_family_values}}; text-align: {{text-align-language-direction}}; padding: 90px 30px 0px 30px; font-weight: bold; font-size: 22px;">
+            {{purchase_order.last_changed_lines.size}} {{ 'order_headers.po_default_liquid_v2.changed_lines' | t }}
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 18px 30px 0px 30px;">
+            <table id="changed_order_lines" style="border-radius: 10px; border: 0px; padding: 0; width: 95%; border-collapse: separate; margin: 0px;">
+              <thead>
+              <tr>
+                <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-language-direction}}; font-weight: 700; width: 10%; padding: 18px 0 0 0; margin: 0;">{{ 'order_headers.po_default_liquid_v2.line' | t }}</th>
+				<th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-language-direction}}; font-weight: 700; width: 10%; padding: 18px 0 0 0; margin: 0;">Item Number</th>
+                <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-language-direction}}; font-weight: 700; width: 40%; padding: 18px 0 0 0; margin: 0;">{{ 'order_headers.po_default_liquid_v2.description' | t }}</th>
+                <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; font-weight: 700; width: 10%; padding: 18px 0 0 0; margin: 0;">{{ 'order_headers.po_default_liquid_v2.quantity' | t }}</th>
+                <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: center; font-weight: 700; width: 10%; padding: 18px 0 0 0; margin: 0;">{{ 'order_headers.po_default_liquid_v2.unit' | t }}</th>
+                {% unless purchase_order.price_is_hidden_from_supplier? %}
+                  {% assign colspan_no = 7 %}
+                  <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; font-weight: 700; width: 15%; padding: 18px 0 0 0; margin: 0;">{{ 'order_headers.po_default_liquid_v2.price' | t }} </th>
+                  {% if purchase_order.order_lines_has_bulk_price? %}
+                     {% assign colspan_no = 8 %}
+                    <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; font-weight: 700; width: 15%; padding: 18px 0 0 0; margin: 0;">{{ 'order_headers.po_default_liquid_v2.bulk_price' | t }} ({{purchase_order.currency.code}})</th>
+                  {% endif %}
+                  <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; font-weight: 700; width: 15%; padding: 18px 0 0 0; margin: 0;">{{ 'order_headers.po_default_liquid_v2.total' | t }} </th>
+                {% endunless %}
+                </tr>
+                <tr><td colspan="{{colspan_no}}" style="padding: 0; margin: 0;"><hr style="border-top: 2px solid #C6D1DD; border-right: 0; border-bottom: 0; border-left: 0; padding: 0; margin: 0;"/></td></tr>
+              </thead>
+              {% for line in purchase_order.last_changed_lines %}
+                <tr>
+                  <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-language-direction}}; vertical-align: top; width: 5%; word-wrap: break-word; padding: 8px 0 8px 0; margin: 0;">{{ line.line_num }}</td>
+				  <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-language-direction}}; font-weight: 700; vertical-align: top; width: 5%; word-wrap: break-word; padding: 8px 0 8px 0; margin: 0;">
+				    {% if line.description_changed? %}
+                      <span style="color: #8533ff;">{{ line.supplier_part_number }}</span><br/>
+                      <span style="text-decoration: line-through;">{{ line.supplier_part_number_old }}</span>
+                    {% else %}
+                      {{ line.supplier_part_number }}
+                    {% endif %}				  
+				  </td>
+                  <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-language-direction}}; vertical-align: top; word-wrap: break-word; padding: 8px 0 8px 0; margin: 0;">
+                    {% if line.description_changed? %}
+                      <span style="color: #8533ff;">{{ line.description }}</span><br/>
+                      <span style="text-decoration: line-through;">{{ line.description_old }}</span>
+                    {% else %}
+                      {{ line.description }}
+                    {% endif %}
+                  </td>
+                  <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; vertical-align: top; word-wrap: break-word; padding: 8px 0 8px 0; margin: 0;">
+                    {% if line.quantity_changed? %}
+                      <span style="color: #8533ff;">{{ line.quantity | n }}</span><br/>
+                      <span style="text-decoration: line-through;">{{ line.quantity_old | n }}</span>
+                    {% else %}
+                      {{ line.quantity | n }}
+                    {% endif %}
+                  </td>
+                  <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: center; vertical-align: top; word-wrap: break-word; padding: 8px 0 8px 0; margin: 0;">
+                    {% if line.uom_old.code != line.uom.code %}
+                      <span style="color: #8533ff;">{{ line.uom.translated_name | n }}</span><br/>
+                      <span style="text-decoration: line-through;">{{ line.uom_old.translated_name }}</span>
+                    {% else %}
+                      {{ line.uom.translated_name }}
+                    {% endif %}
+                  </td>
+                  {% unless purchase_order.price_is_hidden_from_supplier? %}
+                    <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; vertical-align: top; word-wrap: break-word; padding: 8px 0 8px 0; margin: 0;">
+                      {% if line.price_changed? %}
+                        <span style="color: #8533ff;">{{ line.price }}</span><br/>
+                        <span style="text-decoration: line-through;">{{ line.price_old }}</span>
+                      {% else %}
+                        {{ line.price }}
+                      {% endif %}
+                    </td>
+                    {% if purchase_order.order_lines_has_bulk_price? %}
+                      <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; vertical-align: top;width: 27%; word-wrap: break-word; padding: 8px 0 8px 0; margin: 0;"><div style="margin-bottom:5px;">{{ line.bulk_price_with_currency }}</div>
+                        {% if line.uom != line.bulk_price_uom %}
+                          <div style="margin-bottom:5px;font-size:11px;color:grey;">{{ line.display_conversion_ratio }}</div>
+                        {% endif %}
+                      </td>
+                    {% endif %}
+                    <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; vertical-align: top; word-wrap: break-word; padding: 8px 0 8px 0; margin: 0;">
+                      {% if line.total_changed? %}
+                        <span style="color: #8533ff;">{{ line.total }}</span><br/>
+                        <span style="text-decoration: line-through;">{{ line.total_old }}</span>
+                      {% else %}
+                        {{ line.total }}
+                      {% endif %}
+                    </td>
+                  {% endunless %}
+                </tr>
+                <tr>
+                  <td></td>
+                  <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-language-direction}}; vertical-align: top; border: 1px solid #CCCCCC;">
+                    {{ line.job_title_po }}
+                  </td>
+                </tr>
+
+                {% if line.print_line_separator %}
+                  <tr style="width: 100%;">
+                    <td></td>
+                    <td colspan="{{ colspan_no | minus: 1}}" style="padding: 0; margin: 0;">
+                      <hr style="border-top: 1.5px solid #C6D1DD; border-right: 0; border-bottom: 0; border-left: 0; padding: 0; margin: 0;"/>
+                    </td>
+                    <td></td>
+                  </tr>
+                {% endif %}
+
+                <tr>
+                  <td/>
+                  <td colspan="{{ colspan_no | minus: 1}}" style="font-family: {{text_font_family_values}}; font-size: 12px; padding: 8px 0 8px 0px; margin: 0;">
+                    {% if line.need_by_date_changed? %}
+                      <div style="overflow: auto; width: 95%; font-size: 12px; padding-left: 40px;">
+                        <div style="float: left;">
+                          {{ 'order_headers.po_default_liquid_v2.need_by_date' | t }}: <span style="color: #8533ff;">{{ line.need_by_date | l }}  </span>
+                          <span style="text-decoration: line-through;">{{ line.need_by_date_old | l }}</span><br/>
+                        </div>
+                      </div>
+                    {% endif %}                    
+                    {% if line.line_manager_changed? %}
+                      <div style="overflow: auto; width: 95%; font-size: 12px; padding-left: 40px;">
+                        <div style="float: left;">
+                          {{ 'order_headers.po_default_liquid_v2.line_manager' | t }}:&nbsp;<span style="color: #8533ff;">{{ line.line_manager }}</span>
+                          <span style="text-decoration: line-through;">{{ line.line_manager_old }}</span><br/>
+                        </div>
+                      </div>
+                    {% endif %}
+                    {% if line.work_confirmer_changed? %}
+                      <div style="overflow: auto; width: 95%; font-size: 12px; padding-left: 40px;">
+                        <div style="float: left;">
+                          {{ 'order_headers.po_default_liquid_v2.work_confirmer' | t }}:&nbsp;<span style="color: #8533ff;">{{ line.work_confirmer }}</span>
+                          <span style="text-decoration: line-through;">{{ line.work_confirmer_old }}</span><br/>
+                        </div>
+                      </div>
+                    {% endif %}
+                    {% if line.start_date_changed? %}
+                      <div style="overflow: auto; width: 95%; font-size: 12px; padding-left: 40px;">
+                        <div style="float: left;">
+                          {{ 'order_headers.po_default_liquid_v2.service_start_date' | t }}: <span style="color: #8533ff;">{{ line.start_date }}</span>
+                          <span style="text-decoration: line-through;">{{ line.start_date_old }}</span><br/>
+                        </div>
+                      </div>
+                    {% endif %}
+                    {% if line.due_date_changed? %}
+                      <div style="overflow: auto; width: 95%; font-size: 12px; padding-left: 40px;">
+                        <div style="float: left;">
+                          {{ 'order_headers.po_default_liquid_v2.service_due_date' | t }}:&nbsp;<span style="color: #8533ff;">{{ line.due_date }}</span>
+                          <span style="text-decoration: line-through;">&nbsp;{{ line.due_date_old }}</span><br/>
+                        </div>
+                      </div>
+                    {% endif %}
+                    {% if line.end_date_changed? %}
+                      <div style="overflow: auto; width: 95%; font-size: 12px; padding-left: 40px;">
+                        <div style="float: left;">
+                          {{ 'order_headers.po_default_liquid_v2.service_end_date' | t }}:&nbsp;<span style="color: #8533ff;">{{ line.end_date }}</span>
+                          <span style="text-decoration: line-through;">&nbsp;{{ line.end_date_old }}</span><br/>
+                        </div>
+                      </div>
+                    {% endif %}
+                  </td>
+                </tr>
+                <tr><td colspan="{{colspan_no}}" style="padding: 0; margin: 0;"><hr style="border-top: 1.5px solid #C6D1DD; border-right: 0; border-bottom: 0; border-left: 0; padding: 0; margin: 0;"/></td></tr>
+              {% endfor %}
+            </table>
+          </td>
+        </tr>
+      {% endif %}
+
+      {% assign colspan_no = 5 %}
+      {% if purchase_order.last_added_lines != empty %}
+        <tr>
+          <td style="font-family: {{text_font_family_values}}; text-align: {{text-align-language-direction}}; padding: 90px 30px 0px 30px; font-weight: bold; font-size: 22px;">
+            {{purchase_order.last_added_lines.size}} {{ 'order_headers.po_default_liquid_v2.added_lines' | t }}
+          </td>
+        </tr>
+
+        <tr>
+          <td style="padding: 10px 30px 18px 30px;">
+            <table id="added_order_lines" style="border-radius: 10px; border: 0px; padding: 0; width: 95%; border-collapse: separate; margin: 0px;">
+              <thead>
+              <tr>
+                <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-language-direction}}; font-weight: 700; width: 10%; padding: 18px 0 0 0; margin: 0;">{{ 'order_headers.po_default_liquid_v2.line' | t }}</th>
+                <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-language-direction}}; font-weight: 700; width: 40%; padding: 18px 0 0 0; margin: 0;">{{ 'order_headers.po_default_liquid_v2.description' | t }}</th>
+                <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; font-weight: 700; width: 10%; padding: 18px 0 0 0; margin: 0;">{{ 'order_headers.po_default_liquid_v2.quantity' | t }}</th>
+                <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: center; font-weight: 700; width: 10%; padding: 18px 0 0 0; margin: 0;">{{ 'order_headers.po_default_liquid_v2.unit' | t }}</th>
+                {% unless purchase_order.price_is_hidden_from_supplier? %}
+                  {% assign colspan_no = 7 %}
+                  <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; font-weight: 700; width: 15%; padding: 18px 0 0 0; margin: 0;">{{ 'order_headers.po_default_liquid_v2.price' | t }} ({{purchase_order.currency.code}})</th>
+                  {% if purchase_order.order_lines_has_bulk_price? %}
+                    {% assign colspan_no = 8 %}
+                    <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; font-weight: 700; width: 15%; padding: 18px 0 0 0; margin: 0;">{{ 'order_headers.po_default_liquid_v2.bulk_price' | t }} ({{purchase_order.currency.code}})</th>
+                  {% endif %}
+                  <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; font-weight: 700; width: 15%; padding: 18px 0 0 0; margin: 0;">{{ 'order_headers.po_default_liquid_v2.total' | t }} ({{purchase_order.currency.code}})</th>
+                {% endunless %}
+                </tr>
+                <tr><th colspan= "{{colspan_no}}" style="padding: 0; margin: 0;"><hr style="border-top: 2px solid #C6D1DD; border-right: 0; border-bottom: 0; border-left: 0; padding: 0; margin: 0;"/></th></tr>
+              </thead>
+                {% for line in purchase_order.last_added_lines %}
+                  <tr>
+                    <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-language-direction}}; vertical-align: top; width: 5%; word-wrap: break-word; padding: 8px 0 8px 0; margin: 0;">{{ line.line_num }}</td>
+                    <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-language-direction}}; font-weight: 700; vertical-align: top; word-wrap: break-word; padding: 8px 0 8px 0; margin: 0;">
+                      {{ line.description }}
+                    </td>
+                    <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; vertical-align: top; word-wrap: break-word; padding: 8px 0 8px 0; margin: 0;">{{ line.quantity | n }}</td>
+                    <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: center; vertical-align: top; word-wrap: break-word; padding: 8px 0 8px 0; margin: 0;">{{ line.uom.translated_name }}</td>
+                    {% unless purchase_order.price_is_hidden_from_supplier? %}
+                      <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; vertical-align: top; word-wrap: break-word; padding: 8px 0 8px 0; margin: 0;">{{ line.price }}</td>
+                      {% if purchase_order.order_lines_has_bulk_price? %}
+                        <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; vertical-align: top;width: 27%; word-wrap: break-word; padding: 8px 0 8px 0; margin: 0;"><div style="margin-bottom:5px;">{{ line.bulk_price_with_currency }}</div>
+                          {% if line.uom != line.bulk_price_uom %}
+                            <div style="margin-bottom:5px; font-size:11px;color:grey;">{{ line.display_conversion_ratio }}</div>
+                          {% endif %}
+                        </td>
+                      {% endif %}
+                      <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; vertical-align: top; word-wrap: break-word; padding: 8px 0 8px 0; margin: 0;">{{ line.total }}</td>
+                    {% endunless %}
+                  </tr>
+                  <tr>
+                    <td colspan="{{colspan_no}}" style="padding: 0; margin: 0;">
+                      <hr style="border-top: 1.5px solid #C6D1DD; border-right: 0; border-bottom: 0; border-left: 0; padding: 0; margin: 0;"/>
+                    </td>
+                  </tr>
+              {% endfor %}
+            </table>
+          </td>
+        </tr>
+      {% endif %}
+
+      {% assign colspan_no = 4 %}
+      {% if purchase_order.last_deleted_lines != empty %}
+        <tr>
+          <td style="font-family: {{text_font_family_values}}; text-align: {{text-align-language-direction}}; padding: 90px 30px 0px 30px; font-weight: bold; font-size: 22px;">
+            {{purchase_order.last_deleted_lines.size}} {{ 'order_headers.po_default_liquid_v2.deleted_lines' | t }}
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 0px 30px 18px 30px;">
+            <table id="deleted_order_lines" style="border-radius: 10px; border: 0; padding: 0; width: 95%; border-collapse: separate; margin: 0px;">
+                <tr>
+                  <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-language-direction}}; font-weight: 700; width: 10%; padding: 18px 0 0 0; margin: 0;">{{ 'order_headers.po_default_liquid_v2.line' | t }}</th>
+                  <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-language-direction}}; font-weight: 700; width: 40%; padding: 18px 0 0 0; margin: 0;">{{ 'order_headers.po_default_liquid_v2.description' | t }}</th>
+                  <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; font-weight: 700; width: 10%; padding: 18px 0 0 0; margin: 0;">{{ 'order_headers.po_default_liquid_v2.quantity' | t }}</th>
+                  <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: center; font-weight: 700; width: 10%; padding: 18px 0 0 0; margin: 0;">{{ 'order_headers.po_default_liquid_v2.unit' | t }}</th>
+                  {% unless purchase_order.price_is_hidden_from_supplier? %}
+                    {% assign colspan_no = 7 %}
+                    <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; font-weight: 700; width: 15%; padding: 18px 0 0 0; margin: 0;">{{ 'order_headers.po_default_liquid_v2.price' | t }} ({{purchase_order.currency.code}})</th>
+                    {% if purchase_order.order_lines_has_bulk_price? %}
+                      {% assign colspan_no = 8 %}
+                      <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; font-weight: 700; width: 15%; padding: 18px 0 0 0; margin: 0;">{{ 'order_headers.po_default_liquid_v2.bulk_price' | t }} ({{purchase_order.currency.code}})</th>
+                    {% endif %}
+                    <th style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; font-weight: bold; width: auto; padding: 18px 0 0 0; margin: 0;">{{ 'order_headers.po_default_liquid_v2.total' | t }} ({{purchase_order.currency.code}})</th>
+                  {% endunless %}
+                </tr>
+                <tr><th colspan="{{ colspan_no }}"  style="padding: 0; margin: 0;"><hr style="border-top: 2px solid #C6D1DD; border-right: 0; border-bottom: 0; border-left: 0; padding: 0; margin: 0;"/></th></tr>
+                {% for line in purchase_order.last_deleted_lines %}
+                <tr>
+                  <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-language-direction}}; vertical-align: top; word-wrap: break-word; padding: 8px 0 8px 0; margin: 0;">{{ line.line_num }}</td>
+                  <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-language-direction}}; font-weight: 700; vertical-align: top; word-wrap: break-word; text-decoration: line-through; padding: 8px 0 8px 0; margin: 0;">{{ line.description }}</td>
+                  <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; vertical-align: top; word-wrap: break-word; text-decoration: line-through; padding: 8px 0 8px 0; margin: 0;">{{ line.quantity | n }}</td>
+                  <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: center; vertical-align: top; word-wrap: break-word; text-decoration: line-through; padding: 8px 0 8px 0; margin: 0;">{{ line.uom.translated_name }}</td>
+                  {% unless purchase_order.price_is_hidden_from_supplier? %}
+                    <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; vertical-align: top; word-wrap: break-word; text-decoration: line-through; padding: 8px 0 8px 0; margin: 0;">{{ line.price }}</td>
+                    {% if purchase_order.order_lines_has_bulk_price? %}
+                      <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; vertical-align: top;width: 27%; word-wrap: break-word; text-decoration: line-through; padding: 8px 0 8px 0; margin: 0;"><div style="margin-bottom:5px;">{{ line.bulk_price_with_currency }}</div>
+                        {% if line.uom != line.bulk_price_uom %}
+                          <div style="margin-bottom:5px;font-size:11px;color:grey;">{{ line.display_conversion_ratio }}</div>
+                        {% endif %}
+                      </td>
+                    {% endif %}
+                    <td style="font-family: {{text_font_family_values}}; font-size: 13px; text-align: {{text-align-opposite-direction}}; vertical-align: top; word-wrap: break-word; text-decoration: line-through; padding: 8px 0 8px 0; margin: 0;">{{ line.total }}</td>
+                  {% endunless %}
+                </tr>
+                <tr><td colspan="{{ colspan_no }}" style="padding: 0; margin: 0;"><hr style="border-top: 1.5px solid #C6D1DD; border-right: 0; border-bottom: 0; border-left: 0; padding: 0; margin: 0;"/></td></tr>
+              {% endfor %}
+            </table>
+          </td>
+        </tr>
+      {% endif %}
+      <tr>
+        <td style="">
+          <div id="purchase_order_boiler_plate" style="bottom: 0; font-size: 7pt; width: 90%; padding-left: 15px;">{{ purchase_order.boiler_plate }}</div>
+        </td>
+      </tr>
+    </table>
+
+    {% comment %} PO DATA END HERE {% endcomment %}
+
+    {% comment %} This lets the supplier flip the PO to an invoice{% endcomment %}
+    {% if email.create_invoice_link %}
+      <p style="font-family: {{text_font_family_values}}; font-size: 7pt; padding-left: 15px;">
+        {{ 'order_headers.po_default_liquid_v2.create_invoice_info_html' | t_with_one_arg_html_safe: email.create_invoice_link }}
+      </p>
+    {% endif %}
+  </body>
+</html>
